@@ -1,0 +1,94 @@
+// Get Plot Profile Min-Max automates extraction of minimum and maximum Plot Profile values of
+// marked/selected image regions from all associated entries within the ROI (Region OF Interest) Manager
+
+
+/* Query user on which image and associated ROI files to use
+
+Dialog.create("");
+
+radioButtons = newArray("Currently open image and ROI Manager", "A directory containing my files");
+Dialog.addRadioButtonGroup("Extract Plot Profile Min/Max data from:", radioButtons, 2, 1, radioButtons[0]);
+
+Dialog.show();
+
+selectedRadioButton = Dialog.getRadioButton();
+
+if (selectedRadioButton == radioButtons[1])  // User chose to select a directory
+{
+	directoryPath = getDirectory("Choose a Directory");
+	print(directoryPath);
+	
+	fileList = getFileList(directoryPath);
+	
+	for (i = 0; i < fileList.length; i++)
+	{
+		print(fileList[i]);
+	}
+}
+
+exit;
+
+*/
+
+
+if (ConfirmImage())
+{
+	numberOfROIEntries = roiManager("count");  // Get the number of entries in the ROI Manager
+
+	dataFile = File.open("");  // Create a new data output file - name and location determined by user
+
+	for (i = 0; i < numberOfROIEntries; i++)
+	{
+		roiManager("select", i);
+
+		run("Plot Profile");
+		Plot.getLimits(xMin, xMax, yMin, yMax);
+		close();
+
+		print(dataFile, yMin + "," + yMax);
+	}
+
+	File.close(dataFile);
+}
+
+exit;
+
+
+function ConfirmImage()
+{
+	list = getList("image.titles");
+	
+	if (list.length == 0)
+	{
+    	print("No image windows are open");
+    	
+    	imageConfirmation = false;
+	}
+ 	else
+ 	{
+		print("Image windows:");
+		
+		for (i = 0; i < list.length; i++)
+			print("   "+list[i]);
+			
+		imageConfirmation = true;
+	}
+
+	return imageConfirmation;
+}
+
+
+function listFiles(dir)
+{
+     list = getFileList(dir);
+     
+     for (i=0; i<list.length; i++)
+     {
+        if (endsWith(list[i], "/"))
+           listFiles(""+dir+list[i]);
+        else
+           print((count++) + ": " + dir + list[i]);
+     }
+  }
+
+
